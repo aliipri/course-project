@@ -1,0 +1,201 @@
+#define _CRT_SECURE_NO_DEPRECATE
+#include <stdio.h>
+#include <stdlib.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <locale.h>
+
+void clrscr()
+{
+	system("@cls||clear");
+}
+
+void main()
+{
+	setlocale(LC_ALL, "RUS");
+
+	FILE* file;
+
+	//структура, хранящая имя и кол-во заработанных очков против остальных игроков
+	struct player 
+	{
+		char name[20];
+		int qty[10];
+	};
+
+	struct player igrok[10];
+	char i = 0; //переменная, считывающая количество игроков в списке
+
+	file = fopen("tennis.txt", "r"); //открытие файла с списком игроков
+
+	//чтение данных из файла
+	while (fscanf(file, "%s%i%i%i%i%i%i%i%i%i%i",
+		igrok[i].name, &(igrok[i].qty[0]),
+		&(igrok[i].qty[1]), &(igrok[i].qty[2]), &(igrok[i].qty[3]), &(igrok[i].qty[4]),
+		&(igrok[i].qty[5]), &(igrok[i].qty[6]), &(igrok[i].qty[7]), &(igrok[i].qty[8]), &(igrok[i].qty[9])) != EOF) 
+	{
+		//вывод значений
+		/*printf("%s %i %i %i %i %i %i %i %i %i %i\n", igrok[i].name,
+			igrok[i].qty[0], igrok[i].qty[1], igrok[i].qty[2], igrok[i].qty[3], igrok[i].qty[4],
+			igrok[i].qty[5], igrok[i].qty[6], igrok[i].qty[7], igrok[i].qty[8], igrok[i].qty[9]);*/
+		i++;
+	}
+	int* sum_ochkov;  // указатель на транспонированный массив
+	sum_ochkov = (int*)malloc(i * sizeof(int));
+	int* mesto = (int*)malloc(i * sizeof(int));
+
+	for (int q = 0; q < i; q++) 
+	{
+		int sum = 0; // вычисление суммы очков
+		for (int x = 0; x < i; x++)
+		{
+			if (igrok[q].qty[x] == -1) continue;
+
+			if (igrok[q].qty[x] > igrok[x].qty[q]) sum += 2;
+			else sum += 1;
+		}
+		sum_ochkov[q] = sum;
+		//printf("Очков %i\n", sum_ochkov[q]);
+	}
+	int* pobed = (int*)malloc(i * sizeof(int));
+	for (int q = 0; q < i; q++) 
+	{
+
+		pobed[q] = 0; // вычисление побед
+		for (int x = 0; x < i; x++)
+		{
+			if (igrok[q].qty[x] > igrok[x].qty[q]) 
+			{ 
+				pobed[q] += 1; 
+			}
+		}
+		mesto[q] = i - pobed[q];
+	}
+
+	int menu;
+	do
+	{
+		printf("Туринирная таблица по настольному теннсису\n1) Полная таблица\n2) Счет\n3) Очки\n0) Выход из программы\nВыберите нужный пункт: ");
+		scanf("%d", &menu);
+		switch (menu)
+		{
+		case 1:
+			clrscr();
+			printf("  n p/p | имя участника |");
+
+			//динамический вывод столбика с объявлением очков
+			for (int x = 0; x < i; x++) 
+			{
+				if (x == (i / 2)) 
+				{
+					printf("%13s", "n p / p");
+				}
+				else
+					printf("%13s ", "");
+			}
+			printf("| Сумма очков | место |");
+
+			printf("\n        |               |");
+			for (int j = 0; j < i; j++)
+				printf("      %i      |", j + 1);
+			printf("             |       |\n        |               |");
+			for (int j = 0; j < i; j++)
+				printf(" Счет | Очки |");
+			printf("             |       |\n");
+			for (int q = 0; q < i; q++)
+
+			{
+				printf("    %i   | %13s |", q + 1, igrok[q].name);
+				for (int x = 0; x < i; x++)
+				{
+					if (igrok[q].qty[x] == -1) { printf("      |      |");  continue; }
+					else printf("  %1i   |  %i   |", igrok[q].qty[x], igrok[q].qty[x] > igrok[x].qty[q] ? 2 : 1);
+				}
+				printf(" %6i%5s |   %i   |\n", sum_ochkov[q], "", mesto[q]);
+			}
+			printf("\n\n");
+			break;
+		case 2:
+			clrscr();
+			printf("  n p/p | имя участника |");
+			//динамический вывод столбика с объявлением очков
+			for (int x = 0; x < i; x++) 
+			{
+				if (x == (i / 2)) 
+				{
+					printf("%9s", "n p / p");
+				}
+				else
+					printf("%9s ", "");
+			}
+			printf("|");
+			printf("\n        |               |");
+			for (int j = 1; j <= i; j++)
+				printf("    %i    |", j);
+			printf("\n        |               |");
+			for (int j = 1; j <= i; j++)
+				printf("  Счет   |");
+			printf("\n");
+			for (int q = 0; q < i; q++)
+
+			{
+				printf("    %i   | %13s |", q + 1, igrok[q].name);
+				for (int x = 0; x < i; x++)
+				{
+					if (igrok[q].qty[x] == -1) 
+					{ 
+						printf("         |"); 
+					}
+					else
+						printf("   %i:%i   |", igrok[q].qty[x], igrok[x].qty[q]);
+				}
+				printf("\n");
+			}
+			printf("\n\n");
+			break;
+		case 3:
+			clrscr();
+			//вывод шапки
+			printf("  n p/p | имя участника |");
+
+			//динамический вывод столбика с объявлением очков
+			for (int x = 0; x < i; x++) 
+			{
+				if (x == (i / 2)) 
+				{
+					printf("%9s", "n p / p");
+				}
+				else
+					printf("%9s ", "");
+			}
+			printf("| Сумма очков | место |");
+
+			printf("\n        |               |");
+			for (int j = 1; j <= i; j++)
+				printf("    %i    |", j);
+			printf("             |       |\n        |               |");
+			for (int j = 1; j <= i; j++)
+				printf("  Очки   |");
+			printf("             |       |\n");
+			for (int q = 0; q < i; q++)
+
+			{
+				printf("    %i   | %13s |", q + 1, igrok[q].name);
+
+				for (int x = 0; x < i; x++)
+				{
+					if (igrok[q].qty[x] == -1) 
+					{ 
+						printf("         |"); 
+					}
+					else
+						printf("    %1i    |", igrok[q].qty[x] > igrok[x].qty[q] ? 2 : 1);
+				}
+
+				printf(" %6i%5s |   %i   |\n", sum_ochkov[q], "", mesto[q]);
+			}
+			printf("\n\n");
+			break;
+		}
+	} while (menu != 0);
+}
