@@ -4,198 +4,219 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <locale.h>
+#include <conio.h>
 
-void clrscr()
+int clrscr() //функция очистки экрана консоли
 {
 	system("@cls||clear");
+	return 1;
 }
 
-void main()
+
+void tabl() // функция печати таблиц
 {
-	setlocale(LC_ALL, "RUS");
-
-	FILE* file;
-
-	//структура, хранящая имя и кол-во заработанных очков против остальных игроков
-	struct player 
-	{
-		char name[20];
-		int qty[10];
-	};
-
-	struct player igrok[10];
-	char i = 0; //переменная, считывающая количество игроков в списке
-
-	file = fopen("tennis.txt", "r"); //открытие файла с списком игроков
-
-	//чтение данных из файла
-	while (fscanf(file, "%s%i%i%i%i%i%i%i%i%i%i",
-		igrok[i].name, &(igrok[i].qty[0]),
-		&(igrok[i].qty[1]), &(igrok[i].qty[2]), &(igrok[i].qty[3]), &(igrok[i].qty[4]),
-		&(igrok[i].qty[5]), &(igrok[i].qty[6]), &(igrok[i].qty[7]), &(igrok[i].qty[8]), &(igrok[i].qty[9])) != EOF) 
-	{
-		//вывод значений
-		/*printf("%s %i %i %i %i %i %i %i %i %i %i\n", igrok[i].name,
-			igrok[i].qty[0], igrok[i].qty[1], igrok[i].qty[2], igrok[i].qty[3], igrok[i].qty[4],
-			igrok[i].qty[5], igrok[i].qty[6], igrok[i].qty[7], igrok[i].qty[8], igrok[i].qty[9]);*/
-		i++;
-	}
-	int* sum_ochkov;  // указатель на транспонированный массив
-	sum_ochkov = (int*)malloc(i * sizeof(int));
-	int* mesto = (int*)malloc(i * sizeof(int));
-
-	for (int q = 0; q < i; q++) 
-	{
-		int sum = 0; // вычисление суммы очков
-		for (int x = 0; x < i; x++)
-		{
-			if (igrok[q].qty[x] == -1) continue;
-
-			if (igrok[q].qty[x] > igrok[x].qty[q]) sum += 2;
-			else sum += 1;
-		}
-		sum_ochkov[q] = sum;
-		//printf("Очков %i\n", sum_ochkov[q]);
-	}
-	int* pobed = (int*)malloc(i * sizeof(int));
-	for (int q = 0; q < i; q++) 
-	{
-
-		pobed[q] = 0; // вычисление побед
-		for (int x = 0; x < i; x++)
-		{
-			if (igrok[q].qty[x] > igrok[x].qty[q]) 
-			{ 
-				pobed[q] += 1; 
-			}
-		}
-		mesto[q] = i - pobed[q];
-	}
-
 	int menu;
 	do
 	{
-		printf("Туринирная таблица по настольному теннсису\n1) Полная таблица\n2) Счет\n3) Очки\n0) Выход из программы\nВыберите нужный пункт: ");
+		printf("Туринирная таблица по настольному теннсису\n1) Исходная таблица\n2) Результирующая таблица\n0) Выход из программы\nВыберите нужный пункт: ");
 		scanf("%d", &menu);
 		switch (menu)
 		{
 		case 1:
 			clrscr();
-			printf("  n p/p | имя участника |");
-
-			//динамический вывод столбика с объявлением очков
-			for (int x = 0; x < i; x++) 
+			printf(" № по порядку |   имя участника  |");
+			//+-динамический вывод столбика с объявлением очков
+			for (int x = 0; x < i; x++)
 			{
-				if (x == (i / 2)) 
+				if (x == (i / 2))
 				{
-					printf("%13s", "n p / p");
+					printf("%14s", "№ по порядку");
 				}
 				else
-					printf("%13s ", "");
-			}
-			printf("| Сумма очков | место |");
-
-			printf("\n        |               |");
-			for (int j = 0; j < i; j++)
-				printf("      %i      |", j + 1);
-			printf("             |       |\n        |               |");
-			for (int j = 0; j < i; j++)
-				printf(" Счет | Очки |");
-			printf("             |       |\n");
-			for (int q = 0; q < i; q++)
-
-			{
-				printf("    %i   | %13s |", q + 1, igrok[q].name);
-				for (int x = 0; x < i; x++)
-				{
-					if (igrok[q].qty[x] == -1) { printf("      |      |");  continue; }
-					else printf("  %1i   |  %i   |", igrok[q].qty[x], igrok[q].qty[x] > igrok[x].qty[q] ? 2 : 1);
-				}
-				printf(" %6i%5s |   %i   |\n", sum_ochkov[q], "", mesto[q]);
-			}
-			printf("\n\n");
-			break;
-		case 2:
-			clrscr();
-			printf("  n p/p | имя участника |");
-			//динамический вывод столбика с объявлением очков
-			for (int x = 0; x < i; x++) 
-			{
-				if (x == (i / 2)) 
-				{
-					printf("%9s", "n p / p");
-				}
-				else
-					printf("%9s ", "");
+					printf("%10s ", "");
 			}
 			printf("|");
-			printf("\n        |               |");
-			for (int j = 1; j <= i; j++)
-				printf("    %i    |", j);
-			printf("\n        |               |");
-			for (int j = 1; j <= i; j++)
-				printf("  Счет   |");
-			printf("\n");
-			for (int q = 0; q < i; q++)
 
+
+			printf("\n              |                  |");
+			for (int j = 1; j <= i; j++)
+				printf("      %i    |", j);
+			printf("\n              |                  |");
+			for (int j = 1; j <= i; j++)
+				printf("    Счет   |");
+			printf("\n");
+
+
+			for (int q = 0; q < i; q++)
 			{
-				printf("    %i   | %13s |", q + 1, igrok[q].name);
+				printf("          %i   | %16s |", q + 1, name[q]);
 				for (int x = 0; x < i; x++)
 				{
-					if (igrok[q].qty[x] == -1) 
-					{ 
-						printf("         |"); 
+					if (*(a + q * r + x) == -1)
+					{
+						printf("           |");
 					}
 					else
-						printf("   %i:%i   |", igrok[q].qty[x], igrok[x].qty[q]);
+						printf("     %i:%i   |", *(a + q * r + x), *(b + q * r + x));
 				}
 				printf("\n");
 			}
 			printf("\n\n");
 			break;
-		case 3:
-			clrscr();
-			//вывод шапки
-			printf("  n p/p | имя участника |");
 
-			//динамический вывод столбика с объявлением очков
-			for (int x = 0; x < i; x++) 
+
+		case 2:
+			clrscr();
+			printf(" № по порядку |   имя участника  |");
+			//+-динамический вывод столбика с объявлением очков
+			for (int x = 0; x < i; x++)
 			{
-				if (x == (i / 2)) 
+				if (x == (i / 2))
 				{
-					printf("%9s", "n p / p");
+					printf("%6s", "№ по порядку ");
 				}
 				else
 					printf("%9s ", "");
 			}
 			printf("| Сумма очков | место |");
 
-			printf("\n        |               |");
+			printf("\n              |                  |");
 			for (int j = 1; j <= i; j++)
-				printf("    %i    |", j);
-			printf("             |       |\n        |               |");
+				printf("    %i     |", j);
+			printf("             |       |\n              |                  |");
 			for (int j = 1; j <= i; j++)
-				printf("  Очки   |");
+				printf("   Очки   |");
 			printf("             |       |\n");
 			for (int q = 0; q < i; q++)
-
 			{
-				printf("    %i   | %13s |", q + 1, igrok[q].name);
-
+				printf("       %i      | %16s |", q + 1, name[q]);
 				for (int x = 0; x < i; x++)
 				{
-					if (igrok[q].qty[x] == -1) 
-					{ 
-						printf("         |"); 
+					if (*(a + q * r + x) == -1)
+					{
+						printf("          |");
 					}
 					else
-						printf("    %1i    |", igrok[q].qty[x] > igrok[x].qty[q] ? 2 : 1);
+						printf("     %1i    |", *(a + q * r + x) > *(b + q * r + x) ? 2 : 1);
 				}
-
-				printf(" %6i%5s |   %i   |\n", sum_ochkov[q], "", mesto[q]);
+				printf("  %6i%5s|    %i  |\n", sum_ochkov[q], "", mesto[q]);
 			}
 			printf("\n\n");
 			break;
 		}
 	} while (menu != 0);
+}
+
+
+
+
+int ochki() // функция вычисления суммы очков
+{
+	for (int q = 0; q < i; q++)
+	{
+		int sum = 0;
+		for (int x = 0; x < i; x++)
+		{
+			if (*(a + q * r + x) == -1)
+				continue;
+			if (*(a + q * r + x) > *(b + q * r + x)) sum += 2;
+			else sum += 1;
+		}
+		sum_ochkov[q] = sum;
+
+	}
+}
+
+
+
+
+int pim() // функция вычисления кол-ва побед и занятого места
+{
+	int* pobed = (int*)malloc(i * sizeof(int));
+	for (int q = 0; q < i; q++)
+	{
+		pobed[q] = 0;
+		for (int x = 0; x < i; x++)
+		{
+			if (*(a + q * r + x) > *(b + q * r + x))
+			{
+				pobed[q] += 1;
+			}
+			mesto[q] = i - pobed[q];
+
+		}
+	}
+}
+
+
+
+int main()
+{
+	setlocale(LC_ALL, "RUS");
+
+	FILE* file;
+
+	int i = 0, r = 1; //переменная, считывающая количество игроков в списке
+
+	file = fopen("tennis.txt", "r"); //открытие файла с списком игроков
+
+	//чтение данных из файла
+	//чтение строк/кол-ва игроков
+	while (!feof(file)) 
+	{
+		if (fgetc(file) == '\n')
+			r++;
+	}
+	rewind(file); //peremotka kursora chteniya 
+
+	char **name = (char**)calloc(4, sizeof(char*));// указатель на массив имён
+
+	for (int q = 0; q < r; q++)
+	{
+		name[q] = (char*)calloc(70, sizeof(char)); //двумерный массив имён
+		strcpy(name[q], "undefined"); //заполнение значениями
+	}
+
+	int *a = (int*)malloc(pow(r, 2) * sizeof(int));// указатель на массив значений
+	int *b = (int*)malloc(pow(r, 2) * sizeof(int));// указатель на транспонированный массив значений
+
+	//определение динамического массива данными из файла
+
+	//чтение/заполнение значений
+	while (fscanf(file, "%s", name[i]) != EOF) 
+	{ //чтение имён
+		for (int x = 0; x < r; x++) 
+		{ 
+			fscanf(file, "%u", &(*(a + i * r + x))); 
+		} //чтение чисел
+		i++;
+	}
+
+	// Транспонируем значения в массив
+	for (int q = 0; q < r; q++) 
+	{
+		for (int j = 0; j < r; j++) 
+		{
+			*(b + j * r + q) = *(a + q * r + j);
+		}
+	}
+	fclose(file); //закрытие файла
+
+	int* sum_ochkov = (int*)malloc(i * sizeof(int));
+	int* mesto = (int*)malloc(i * sizeof(int));
+
+	tabl();
+	ochki();
+	pim();
+
+	for (int i = 0; i < 4; i++) // освобождение памяти | массив имен
+	{
+		free(name[i]);
+	}
+
+	free(name);
+	free(a); // | массив знач 1
+	free(b); // | массив знач 2
+
+	system("pause");
 }
