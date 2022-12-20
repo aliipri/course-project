@@ -167,7 +167,6 @@ int main()
 		if (fgetc(file) == '\n')
 			r++;
 	}
-	rewind(file); //peremotka kursora chteniya 
 
 	char **name = (char**)calloc(4, sizeof(char*));// указатель на массив имён
 
