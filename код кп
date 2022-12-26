@@ -5,217 +5,443 @@
 #include <math.h>
 #include <locale.h>
 #include <conio.h>
+#include <string.h>
 
-int clrscr() //функция очистки экрана консоли
+
+// вычисление суммы очков
+int* get_score(int players, int* matrix_values, int* transpose_matrix_values)
 {
-	system("@cls||clear");
-	return 1;
+    int* score = malloc(players * sizeof(int));
+
+    for (int i = 0; i < players; i++)
+    {
+        int sum = 0;
+        for (int j = 0; j < players; j++)
+        {
+            if (*(matrix_values + i * players + j) == -1)
+                continue;
+            if (*(matrix_values + i * players + j) > *(transpose_matrix_values + i * players + j))
+                sum += 2;
+            else
+                sum += 1;
+        }
+        score[i] = sum;
+    }
+
+    return score;
 }
 
-
-void tabl() // функция печати таблиц
+// вычисление кол-ва побед
+int* get_victories(int players, int* matrix_values, int* transpose_matrix_values)
 {
-	int menu;
-	do
-	{
-		printf("Туринирная таблица по настольному теннсису\n1) Исходная таблица\n2) Результирующая таблица\n0) Выход из программы\nВыберите нужный пункт: ");
-		scanf("%d", &menu);
-		switch (menu)
-		{
-		case 1:
-			clrscr();
-			printf(" № по порядку |   имя участника  |");
-			//+-динамический вывод столбика с объявлением очков
-			for (int x = 0; x < i; x++)
-			{
-				if (x == (i / 2))
-				{
-					printf("%14s", "№ по порядку");
-				}
-				else
-					printf("%10s ", "");
-			}
-			printf("|");
+    int* victories = malloc(players * sizeof(int));
 
+    for (int i = 0; i < players; i++)
+    {
+        victories[i] = 0;
+        for (int j = 0; j < players; j++)
+        {
+            if (*(matrix_values + i * players + j) > *(transpose_matrix_values + i * players + j))
+            {
+                victories[i] += 1;
+            }
+        }
+    }
 
-			printf("\n              |                  |");
-			for (int j = 1; j <= i; j++)
-				printf("      %i    |", j);
-			printf("\n              |                  |");
-			for (int j = 1; j <= i; j++)
-				printf("    Счет   |");
-			printf("\n");
-
-
-			for (int q = 0; q < i; q++)
-			{
-				printf("          %i   | %16s |", q + 1, name[q]);
-				for (int x = 0; x < i; x++)
-				{
-					if (*(a + q * r + x) == -1)
-					{
-						printf("           |");
-					}
-					else
-						printf("     %i:%i   |", *(a + q * r + x), *(b + q * r + x));
-				}
-				printf("\n");
-			}
-			printf("\n\n");
-			break;
-
-
-		case 2:
-			clrscr();
-			printf(" № по порядку |   имя участника  |");
-			//+-динамический вывод столбика с объявлением очков
-			for (int x = 0; x < i; x++)
-			{
-				if (x == (i / 2))
-				{
-					printf("%6s", "№ по порядку ");
-				}
-				else
-					printf("%9s ", "");
-			}
-			printf("| Сумма очков | место |");
-
-			printf("\n              |                  |");
-			for (int j = 1; j <= i; j++)
-				printf("    %i     |", j);
-			printf("             |       |\n              |                  |");
-			for (int j = 1; j <= i; j++)
-				printf("   Очки   |");
-			printf("             |       |\n");
-			for (int q = 0; q < i; q++)
-			{
-				printf("       %i      | %16s |", q + 1, name[q]);
-				for (int x = 0; x < i; x++)
-				{
-					if (*(a + q * r + x) == -1)
-					{
-						printf("          |");
-					}
-					else
-						printf("     %1i    |", *(a + q * r + x) > *(b + q * r + x) ? 2 : 1);
-				}
-				printf("  %6i%5s|    %i  |\n", sum_ochkov[q], "", mesto[q]);
-			}
-			printf("\n\n");
-			break;
-		}
-	} while (menu != 0);
+    return victories;
 }
 
-
-
-
-int ochki() // функция вычисления суммы очков
+// вычисление кол-ва поражений
+int* get_defeats(int players, int* matrix_values, int* transpose_matrix_values)
 {
-	for (int q = 0; q < i; q++)
-	{
-		int sum = 0;
-		for (int x = 0; x < i; x++)
-		{
-			if (*(a + q * r + x) == -1)
-				continue;
-			if (*(a + q * r + x) > *(b + q * r + x)) sum += 2;
-			else sum += 1;
-		}
-		sum_ochkov[q] = sum;
+    int* defeats = malloc(players * sizeof(int));
 
-	}
+    for (int i = 0; i < players; i++)
+    {
+        defeats[i] = 0;
+        for (int j = 0; j < players; j++)
+        {
+            if (*(matrix_values + i * players + j) < *(transpose_matrix_values + i * players + j))
+            {
+                defeats[i] += 1;
+            }
+        }
+    }
+
+    return defeats;
 }
 
-
-
-
-int pim() // функция вычисления кол-ва побед и занятого места
+// вычисление места (расчет с коэффициентом)
+int* get_position(int players, int* victories, int* defeats)
 {
-	int* pobed = (int*)malloc(i * sizeof(int));
-	for (int q = 0; q < i; q++)
-	{
-		pobed[q] = 0;
-		for (int x = 0; x < i; x++)
-		{
-			if (*(a + q * r + x) > *(b + q * r + x))
-			{
-				pobed[q] += 1;
-			}
-			mesto[q] = i - pobed[q];
+    int* position = malloc(players * sizeof(int));
 
-		}
-	}
+    for (int i = 0; i < players; i++)
+    {
+        position[i] = players - victories[i];
+    }
+
+    for (int i = 0; i < players; i++)
+    {
+        for (int j = i + 1; j < players; j++)
+        {
+            if (position[i] == position[j])
+            {
+                int coef1;
+                int coef2;
+                if (defeats[i] != 0)
+                {
+                    coef1 = victories[i] / defeats[i];
+                }
+                else
+                {
+                    coef1 = victories[i];
+                }
+                if (defeats[i] != 0)
+                {
+                    coef2 = victories[j] / defeats[j];
+                }
+                else
+                {
+                    coef2 = victories[j];
+                }
+                if (coef1 > coef2)
+                {
+                    position[i] = position[i] - 1;
+                }
+                else
+                {
+                    position[j] = position[j] - 1;
+                }
+            }
+        }
+    }
+
+    return position;
 }
 
+// исходная таблица
+void one(int players, char** name, int* matrix_values, int* transpose_matrix_values)
+{
+    printf("\n № по порядку |   имя участника  |");
+    for (int i = 0; i < players; i++)
+    {
+        if (i == (players / 2))
+        {
+            printf("%14s", "№ по порядку");
+        }
+        else
+            printf("%10s ", "");
+    }
+    printf("|");
 
+    printf("\n              |                  |");
+    for (int i = 1; i <= players; i++)
+        printf("      %i    |", i);
+    printf("\n              |                  |");
+    for (int i = 1; i <= players; i++)
+        printf("    Счет   |");
+    printf("\n");
+    for (int i = 0; i < players; i++)
+    {
+        printf("          %i   | %16s |", i + 1, name[i]);
+        for (int j = 0; j < players; j++)
+        {
+            if (*(matrix_values + i * players + j) == -1)
+            {
+                printf("           |");
+            }
+            else
+                printf("     %i:%i   |", *(matrix_values + i * players + j), *(transpose_matrix_values + i * players + j));
+        }
+        printf("\n");
+    }
+    printf("\n\n");
+}
+
+// результирующая таблица
+void two(int players, char** name, int* matrix_values, int* transpose_matrix_values, int* score, int* position)
+{
+    printf("\n № по порядку |   имя участника  |");
+
+    for (int i = 0; i < players; i++)
+    {
+        if (i == (players / 2))
+        {
+            printf("%6s", "№ по порядку ");
+        }
+        else
+            printf("%9s ", "");
+    }
+    printf("| Сумма очков | место |");
+
+    printf("\n              |                  |");
+    for (int i = 1; i <= players; i++)
+        printf("    %i     |", i);
+
+    printf("             |       |\n              |                  |");
+    for (int i = 1; i <= players; i++)
+        printf("   Очки   |");
+    printf("             |       |\n");
+    for (int i = 0; i < players; i++)
+
+    {
+        printf("       %i      | %16s |", i + 1, name[i]);
+
+        for (int j = 0; j < players; j++)
+        {
+            if (*(matrix_values + i * players + j) == -1)
+            {
+                printf("          |");
+            }
+            else
+                printf("     %1i    |", *(matrix_values + i * players + j) > *(transpose_matrix_values + i * players + j) ? 2 : 1);
+        }
+
+        printf("  %6i%5s|    %i  |\n", score[i], "", position[i]);
+    }
+    printf("\n\n");
+}
+
+// меню
+void three(char** name, int* score, int* position)
+{
+    int sub_menu;
+    printf("\n1) Найти команду с максимальным количеством очков\n2) Найти команду с минимальным количеством очков\n3) Найти команды с количеством очков больше ввденного значения\n4) Найти команды с количеством очков меньше ввденного значения\n0) Вернуться в главное меню\nВыберите нужный параметр: ");
+    scanf("%i", &sub_menu);
+    switch (sub_menu)
+    {
+    case 1:
+        // Max
+        int max_iter;
+        int max = INT_MIN;
+        for (int i = 0; i < 4; i++)
+        {
+            if (score[i] > max)
+            {
+                max = score[i];
+                max_iter = i;
+            }
+        }
+        printf("\nКоманда %s - Суммарное кол-во очков %i\n", name[max_iter], score[max_iter]);
+        break;
+    case 2:
+        // Min
+        int min_iter;
+        int min = INT_MAX;
+        for (int i = 0; i < 4; i++)
+        {
+            if (score[i] < min)
+            {
+                min = score[i];
+                min_iter = i;
+            }
+        }
+        printf("\nКоманда %s - Суммарное кол-во очков %i\n", name[min_iter], score[min_iter]);
+        break;
+    case 3:
+        // Bigger
+        printf("\nВведите кол-во очков больше которого вы хотите узнать команды: ");
+        int biggest;
+        scanf("%i", &biggest);
+        int exist_for_big = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            if (score[i] > biggest)
+            {
+                exist_for_big = 1;
+                printf("Команда %s - %i очков\n", name[i], score[i]);
+            }
+        }
+        if (exist_for_big == 0)
+        {
+            printf("Таких команд не существует!");
+        }
+        break;
+    case 4:
+        // Smaller
+        printf("\nВведите кол-во очков меньше которого вы хотите узнать команды: ");
+        int smallest;
+        scanf("%i", &smallest);
+        int exist_for_small = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            if (score[i] < smallest)
+            {
+                exist_for_small = 1;
+                printf("Команда %s - %i очков\n", name[i], score[i]);
+            }
+        }
+        if (exist_for_small == 0)
+        {
+            printf("Таких команд не существует!");
+        }
+        break;
+    default:
+        break;
+    }
+
+    printf("\n\n");
+}
+
+// сортировка по месту (от лучшего к худшему)
+void four(char** name, int* score, int* position)
+{
+    int* mesto_sort = malloc(4 * sizeof(int));
+    for (int i = 0; i < 4; i++)
+        mesto_sort[i] = position[i];
+
+    int* sort_iter = malloc(4 * sizeof(int));
+    for (int i = 0; i < 4; i++)
+        sort_iter[i] = i;
+
+    for (int i = 0; i < 4; i++)
+    {
+        int flag = 1;
+        for (int j = 0; j < 4 - (i + 1); j++)
+        {
+            if (mesto_sort[j] > mesto_sort[j + 1])
+            {
+                flag = 0;
+                int transpose_matrix_values = mesto_sort[j]; // создали дополнительную переменную
+                mesto_sort[j] = mesto_sort[j + 1];           // меняем местами
+                mesto_sort[j + 1] = transpose_matrix_values; // значения элементов
+
+                transpose_matrix_values = sort_iter[j];
+                sort_iter[j] = sort_iter[j + 1];
+                sort_iter[j + 1] = transpose_matrix_values;
+            }
+        }
+        if (flag == 1)
+        {
+            break;
+        }
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        printf("\nКоманда %s - Сумма очков %i - Место %i\n", name[sort_iter[i]], score[sort_iter[i]], position[sort_iter[i]]);
+    }
+    printf("\n\n");
+}
+
+// заменa имени в файле
+void five(char*** name)
+{
+    printf("\nЗамена существующих имен\n");
+    for (int i = 0; i < 4; i++)
+    {
+        printf("Хотите заменить имя команды %s?(y/n) ", (*name)[i]);
+        char solution;
+        scanf(" %c", &solution);
+        if (solution == 'y')
+        {
+            printf("Введите новое название: ");
+            char new_name_string[70];
+            scanf("%s", &new_name_string);
+            for (int j = 0; j < 70; j++)
+                (*name)[i][j] = new_name_string[j];
+        }
+    }
+    printf("\n\n");
+}
 
 int main()
 {
-	setlocale(LC_ALL, "RUS");
+    setlocale(LC_ALL, "RUS");
 
-	FILE* file;
+    FILE* file;
 
-	int i = 0, r = 1; //переменная, считывающая количество игроков в списке
+    file = fopen("tennis.txt", "r"); // открытие файла с списком игроков
 
-	file = fopen("tennis.txt", "r"); //открытие файла с списком игроков
+    int players = 1; // переменная, считывающая количество игроков в списке
+    // чтение данных из файла
+    // чтение строк/кол-ва игроков
+    while (!feof(file))
+    {
+        if (fgetc(file) == '\n')
+            players++;
+    }
+    rewind(file); 
 
-	//чтение данных из файла
-	//чтение строк/кол-ва игроков
-	while (!feof(file)) 
-	{
-		if (fgetc(file) == '\n')
-			r++;
-	}
+    char** name = malloc(4 * sizeof(char*)); // указатель на массив имён
 
-	char **name = (char**)calloc(4, sizeof(char*));// указатель на массив имён
+    for (int i = 0; i < players; i++)
+    {
+        name[i] = malloc(70 * sizeof(char)); // двумерный массив имён
+        strcpy(name[i], "undefined");        // заполнение значениями
+    }
 
-	for (int q = 0; q < r; q++)
-	{
-		name[q] = (char*)calloc(70, sizeof(char)); //двумерный массив имён
-		strcpy(name[q], "undefined"); //заполнение значениями
-	}
+    int* matrix_values = malloc(pow(players, 2) * sizeof(int));           // указатель на массив значений
+    int* transpose_matrix_values = malloc(pow(players, 2) * sizeof(int)); // указатель на транспонированный массив значений
 
-	int *a = (int*)malloc(pow(r, 2) * sizeof(int));// указатель на массив значений
-	int *b = (int*)malloc(pow(r, 2) * sizeof(int));// указатель на транспонированный массив значений
+    // определение динамического массива данными из файла
 
-	//определение динамического массива данными из файла
+    int current_player = 0;
+    // чтение/заполнение значений
+    while (fscanf(file, "%s", name[current_player]) != EOF)
+    { // чтение имён
+        for (int i = 0; i < players; i++)
+        {
+            fscanf(file, "%u", &(*(matrix_values + current_player * players + i)));
+        } // чтение чисел
+        current_player++;
+    }
 
-	//чтение/заполнение значений
-	while (fscanf(file, "%s", name[i]) != EOF) 
-	{ //чтение имён
-		for (int x = 0; x < r; x++) 
-		{ 
-			fscanf(file, "%u", &(*(a + i * r + x))); 
-		} //чтение чисел
-		i++;
-	}
+    for (int i = 0; i < players; i++)
+    {
+        for (int j = 0; j < players; j++)
+        {
+            *(transpose_matrix_values + j * players + i) = *(matrix_values + i * players + j);
+        }
+    }
 
-	// Транспонируем значения в массив
-	for (int q = 0; q < r; q++) 
-	{
-		for (int j = 0; j < r; j++) 
-		{
-			*(b + j * r + q) = *(a + q * r + j);
-		}
-	}
-	fclose(file); //закрытие файла
+    fclose(file); 
 
-	int* sum_ochkov = (int*)malloc(i * sizeof(int));
-	int* mesto = (int*)malloc(i * sizeof(int));
+    int* score = get_score(players, matrix_values, transpose_matrix_values);
 
-	tabl();
-	ochki();
-	pim();
+    int* victories = get_victories(players, matrix_values, transpose_matrix_values);
 
-	for (int i = 0; i < 4; i++) // освобождение памяти | массив имен
-	{
-		free(name[i]);
-	}
+    int* defeats = get_defeats(players, matrix_values, transpose_matrix_values);
 
-	free(name);
-	free(a); // | массив знач 1
-	free(b); // | массив знач 2
+    int* position = get_position(players, victories, defeats);
 
-	system("pause");
+    int menu;
+    do
+    {
+        printf("\n\nТуринирная таблица по настольному теннису\n1) Исходная таблица\n2) Результирующая таблица\n3) Найти нужную команду по параметрам\n4) Отсортировать команды\n5) Изменить названия команд\n0) Выход из программы\nВыберите нужный пункт: ");
+        scanf("%i", &menu);
+        switch (menu)
+        {
+
+        case 1:
+            one(players, name, matrix_values, transpose_matrix_values);
+            break;
+
+        case 2:
+            two(players, name, matrix_values, transpose_matrix_values, score, position);
+            break;
+
+        case 3:;
+            three(name, score, position);
+            break;
+        case 4:
+            four(name, score, position);
+            break;
+        case 5:
+            five(&name);
+            break;
+        default:
+            break;
+        }
+    } while (menu != 0);
+
+    for (int i = 0; i < 4; i++)
+    {
+        free(name[i]);
+    }
+
+    free(name);
+    free(matrix_values);           
+    free(transpose_matrix_values); 
 }
